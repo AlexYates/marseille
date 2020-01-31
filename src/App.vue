@@ -56,13 +56,13 @@ export default {
       isProcessing: false,
       items: [],
       urls: [
-        "http://feeds.bbci.co.uk/news/rss.xml"
-        // "https://www.reddit.com/r/news/.rss",
-        // "https://www.swellmagnet.com/feed",
-        // "https://www.techrepublic.com/rssfeeds/whitepapers/",
-        // "https://hackernoon.com/feed",
-        // "http://feeds.feedburner.com/surfertoday/surfing?format=xml",
-        // "https://www.techrepublic.com/rssfeeds/articles/"
+        "http://feeds.bbci.co.uk/news/rss.xml",
+        "https://www.reddit.com/r/news/.rss",
+        "https://www.swellmagnet.com/feed",
+        "https://www.techrepublic.com/rssfeeds/whitepapers/",
+        "https://hackernoon.com/feed",
+        "http://feeds.feedburner.com/surfertoday/surfing?format=xml",
+        "https://www.techrepublic.com/rssfeeds/articles/"
       ]
     };
   },
