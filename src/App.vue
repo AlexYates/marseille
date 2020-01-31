@@ -1,20 +1,31 @@
 <template>
-  <main class="bg-white flex flex-col p-2">
-    <Message v-if="hasError" v-html="'An error occured&hellip;'" />
-    <Message v-if="!hasURLs" v-html="'No feed URLs found&hellip;'" />
-    <Message v-if="isLoading" v-html="'Loading feeds&hellip;'" />
-    <Message v-if="isProcessing" v-html="'Processing feeds&hellip;'" />
-    <ol v-if="!hasError && hasURLs && !isLoading && !isProcessing">
-      <li v-for="(item, index) in items" :key="index">
-        <FeedHeading
-          v-if="!item.content"
-          :href="item.link"
-          v-text="item.title"
-        />
-        <FeedPostList :posts="item.items" />
-      </li>
-    </ol>
-  </main>
+  <div>
+    <nav class="bg-gray-800">
+      <button
+        v-if="!completedURLs"
+        @click="loadURL"
+        v-html="'Click to load more&hellip;'"
+        class="bg-gray-200 flex flex-col mb-0 p-4 bg-gray-800 text-lg text-white text-center w-full"
+      />
+      <Message v-if="completedURLs" v-html="'All URLs loaded&hellip;'" />
+      <Message v-if="hasError" v-html="'An error occured&hellip;'" />
+      <Message v-if="!hasURLs" v-html="'No feed URLs found&hellip;'" />
+      <Message v-if="isLoading" v-html="'Loading feeds&hellip;'" />
+      <Message v-if="isProcessing" v-html="'Processing feeds&hellip;'" />
+    </nav>
+    <main class="bg-white flex flex-col p-2">
+      <ol v-if="!hasError && hasURLs && !isLoading && !isProcessing">
+        <li v-for="(item, index) in items" :key="index">
+          <FeedHeading
+            v-if="!item.content"
+            :href="item.link"
+            v-text="item.title"
+          />
+          <FeedPostList :posts="item.items" />
+        </li>
+      </ol>
+    </main>
+  </div>
 </template>
 
 <script>
@@ -50,6 +61,7 @@ export default {
   },
   data() {
     return {
+      completedURLs: false,
       hasError: false,
       hasURLs: false,
       isLoading: false,
@@ -63,43 +75,64 @@ export default {
         "https://hackernoon.com/feed",
         "http://feeds.feedburner.com/surfertoday/surfing?format=xml",
         "https://www.techrepublic.com/rssfeeds/articles/"
-      ]
+      ],
+      urlsCurrent: []
     };
   },
   created() {
-    this.hasError = false;
-    this.hasURLs = false;
-    this.isLoading = false;
-    this.isProcessing = false;
-    if (this.urls.length > 0) {
-      this.hasURLs = true;
-      const collectAll = new Array(this.urls.length).fill(null).map((v, i) => {
-        const url = this.urls[i];
-        return parser
-          .parseURL(`${CORS_ANYWHERE}${url}`)
+    this.loadURL();
+  },
+  methods: {
+    loadURL() {
+      const next = this.urls.pop();
+      if (!next) {
+        this.completedURLs = true;
+        return;
+      }
+      this.urlsCurrent.push(next);
+      this.hasError = false;
+      this.hasURLs = false;
+      this.isLoading = false;
+      this.isProcessing = false;
+      if (this.urlsCurrent.length > 0) {
+        this.hasURLs = true;
+        const collectAll = new Array(this.urlsCurrent.length)
+          .fill(null)
+          .map((v, i) => {
+            const url = this.urlsCurrent[i];
+            return parser
+              .parseURL(`${CORS_ANYWHERE}${url}`)
+              .then((res, rej) => {
+                if (res) {
+                  return res;
+                }
+                if (rej) {
+                  logWarn(rej);
+                } else {
+                  createFeedError(url);
+                }
+              })
+              .catch(err => logError(err));
+          });
+        Promise.all(collectAll)
           .then((res, rej) => {
             if (res) {
-              return res;
+              this.items = res;
             }
             if (rej) {
               logWarn(rej);
-            } else {
-              createFeedError(url);
             }
           })
           .catch(err => logError(err));
-      });
-      Promise.all(collectAll)
-        .then((res, rej) => {
-          if (res) {
-            this.items = res;
-          }
-          if (rej) {
-            logWarn(rej);
-          }
-        })
-        .catch(err => logError(err));
+      }
     }
   }
 };
 </script>
+
+<style scoped>
+nav {
+  position: sticky;
+  top: 0px;
+}
+</style>

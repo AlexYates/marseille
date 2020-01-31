@@ -7,10 +7,10 @@ module.exports = {
   corePlugins: {
     // preflight: false, // Tailwind's base/reset styles
     container: false, // The container component
-    // accessibility: false, // The sr-only and not-sr-only utilities
-    // alignContent: false, // The align-content utilities like content-between
-    // alignItems: false, // The align-items utilities like items-start
-    // alignSelf: false, // The align-self utilities like self-end
+    accessibility: false, // The sr-only and not-sr-only utilities
+    alignContent: false, // The align-content utilities like content-between
+    alignItems: false, // The align-items utilities like items-start
+    alignSelf: false, // The align-self utilities like self-end
     // appearance: false, // The appearance utilities like appearance-none
     backgroundAttachment: false, // The background-attachment utilities like bg-fixed
     // backgroundColor: false, // The background-color utilities like bg-gray-200
