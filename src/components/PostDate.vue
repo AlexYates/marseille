@@ -14,7 +14,6 @@ export default {
   },
   filters: {
     humanDate: function(value) {
-      console.log(value);
       return Intl.DateTimeFormat("gb-EN", {
         day: "numeric",
         dayPeriod: "short",
